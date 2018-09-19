@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using GTA;
-using GTA.Native;
-using Font = GTA.Font;
+using CitizenFX.Core;
+using CitizenFX.Core.Native;
+using CitizenFX.Core.UI;
 
 namespace GTAMenu
 {
@@ -77,18 +77,18 @@ namespace GTAMenu
             {
                 NativeFunctions.DrawSprite("commonmenu", "gradient_nav",
                     new PointF(size.Width / 2 + position.X, size.Height / 2 + position.Y), size, 0,
-                    selected ? Color.White : NativeMenu.HighlightColor());
+                    selected ? Color.FromArgb(255, 255, 255) : NativeMenu.HighlightColor());
 
                 if (selected && hover2 && InteractionCursor != CursorSprite.None)
                 {
-                    Function.Call(Hash._0x8DB8CFFD58B62552, (int) InteractionCursor); // SET_CURSOR_SPRITE
+                    Function.Call(Hash._SET_CURSOR_SPRITE, (int) InteractionCursor); // SET_CURSOR_SPRITE
                     overridenCursor = true;
                 }
             }
 
             var offset = DrawShopIcon(pos, selected, ShopIcon, new SizeF(50, 50));
             NativeFunctions.DrawText(Text, pos + new SizeF(offset, 0f), NativeMenu.DescriptionTextScale,
-                Enabled ? selected ? Color.FromArgb(255, 45, 45, 45) : Color.White : Color.Gray, 1, Font.ChaletLondon,
+                Enabled ? selected ? Color.FromArgb(255, 45, 45, 45) : Color.FromArgb(255, 255, 255) : Color.FromArgb(128, 128, 128), 1, Font.ChaletLondon,
                 false, false);
             DrawValue(position + size, selected);
         }
@@ -122,7 +122,7 @@ namespace GTAMenu
         public virtual void DrawTextValue(string text, PointF position, bool selected)
         {
             NativeFunctions.DrawText(text, position - new SizeF(14, 40), NativeMenu.DescriptionTextScale,
-                Enabled ? selected ? Color.FromArgb(255, 45, 45, 45) : Color.White : Color.Gray,
+                Enabled ? selected ? Color.FromArgb(255, 45, 45, 45) : Color.FromArgb(255, 255, 255) : Color.FromArgb(128, 128, 128),
                 2, Font.ChaletLondon, false, false);
         }
 
@@ -215,7 +215,9 @@ namespace GTAMenu
                     b = "shop_box_blankb";
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(icon), icon, null);
+                    a = string.Empty;
+                    b = string.Empty;
+                    break;
             }
         }
 

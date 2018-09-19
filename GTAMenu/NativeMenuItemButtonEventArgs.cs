@@ -1,5 +1,5 @@
 ﻿using System;
-using GTA;
+using CitizenFX.Core;
 
 namespace GTAMenu
 {

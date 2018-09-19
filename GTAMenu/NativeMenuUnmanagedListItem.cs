@@ -33,16 +33,16 @@ namespace GTAMenu
 
         public override void DrawTextValue(string text, PointF position, bool selected)
         {
-            NativeFunctions.DrawText(text, position - new SizeF(selected && Enabled ? 28 : 14, 40), NativeMenu.DescriptionTextScale, !Enabled ? Color.Gray : selected ? Color.FromArgb(255, 45, 45, 45) : Color.White, 2, GTA.Font.ChaletLondon, false, false);
+            NativeFunctions.DrawText(text, position - new SizeF(selected && Enabled ? 28 : 14, 40), NativeMenu.DescriptionTextScale, !Enabled ? Color.FromArgb(128, 128, 128) : selected ? Color.FromArgb(255, 45, 45, 45) : Color.FromArgb(255, 255, 255), 2, CitizenFX.Core.UI.Font.ChaletLondon, false, false);
 
             if (!selected || !Enabled)
             {
                 return;
             }
 
-            NativeFunctions.DrawSprite("commonmenu", "arrowright", position - new SizeF(18, 21), new SizeF(20, 20), 0f, Color.Black);
+            NativeFunctions.DrawSprite("commonmenu", "arrowright", position - new SizeF(18, 21), new SizeF(20, 20), 0f, Color.FromArgb(0, 0, 0));
 
-            NativeFunctions.DrawSprite("commonmenu", "arrowleft", position - new SizeF(18 + NativeFunctions.MeasureStringWidth(text, "jamyfafi", GTA.Font.ChaletLondon, NativeMenu.DescriptionTextScale) + 16, 21), new SizeF(20, 20), 0f, Color.Black);
+            NativeFunctions.DrawSprite("commonmenu", "arrowleft", position - new SizeF(18 + NativeFunctions.MeasureStringWidth(text, "jamyfafi", CitizenFX.Core.UI.Font.ChaletLondon, NativeMenu.DescriptionTextScale) + 16, 21), new SizeF(20, 20), 0f, Color.FromArgb(0, 0, 0));
         }
 
         public override void OnNavLeftRight(NativeMenu sender, int menuItemIndex, int leftRight)

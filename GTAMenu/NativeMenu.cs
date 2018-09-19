@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using GTA;
-using GTA.Math;
-using GTA.Native;
-using Font = GTA.Font;
+using CitizenFX.Core;
+using CitizenFX.Core.UI;
+using CitizenFX.Core.Native;
 
 namespace GTAMenu
 {
@@ -50,11 +49,14 @@ namespace GTAMenu
         public NativeMenu(string title)
         {
             Title = title;
-            DescriptionColor = Color.White;
+            DescriptionColor = Color.FromArgb(255,255,255);
             MenuWidth = 512;
             MenuItems = new List<NativeMenuItemBase>();
             MaxDrawableItems = 7;
             AcceleratedScrolling = true;
+            SoundSet = FrontEndAudio.FrontendDefault;
+
+            Init();
         }
 
         public NativeMenu(string title, MenuBannerType bannerType) : this(title)
@@ -166,7 +168,7 @@ namespace GTAMenu
         private void DrawInstructionalButtons()
         {
             if (MenuItems.Count <= 0) return;
-            Function.Call(Hash._0x0DF606929C105BE1, _instructionalButtonsScaleform.Handle, 255, 255, 255, 255, 0);
+            Function.Call(Hash.DRAW_SCALEFORM_MOVIE_FULLSCREEN, _instructionalButtonsScaleform.Handle, 255, 255, 255, 255, 0);
             _instructionalButtonsScaleform.CallFunction("CLEAR_ALL");
             _instructionalButtonsScaleform.CallFunction("TOGGLE_MOUSE_BUTTONS", 0);
             var count = 0;
@@ -188,7 +190,7 @@ namespace GTAMenu
 
         private static string GetControlString(Control control)
         {
-            return Function.Call<string>(Hash._0x0499D7B09FC9B407, 1, (int)control, 0);
+            return Function.Call<string>(Hash.GET_CONTROL_INSTRUCTIONAL_BUTTON, 1, (int)control, 0);
         }
 
         private void HandleCameraRotation()
@@ -198,13 +200,13 @@ namespace GTAMenu
             {
                 _mouseOnScreenEdge = true;
                 GameplayCamera.RelativeHeading -= 2.5f;
-                Function.Call(Hash._0x8DB8CFFD58B62552, (int)CursorSprite.RightArrow); // SET_CURSOR_SPRITE
+                Function.Call(Hash._SET_CURSOR_SPRITE, (int)CursorSprite.RightArrow); // SET_CURSOR_SPRITE
             }
             else if (x <= 0f)
             {
                 _mouseOnScreenEdge = true;
                 GameplayCamera.RelativeHeading += 2.5f;
-                Function.Call(Hash._0x8DB8CFFD58B62552, (int)CursorSprite.LeftArrow); // SET_CURSOR_SPRITE
+                Function.Call(Hash._SET_CURSOR_SPRITE, (int)CursorSprite.LeftArrow); // SET_CURSOR_SPRITE
             }
             else
             {
@@ -430,7 +432,7 @@ namespace GTAMenu
             var posX = new PointF(menuMiddle + OffsetX, yOffset + halfHeight + 0.5f);
 
             // Draw gradient and scroll icon.
-            NativeFunctions.DrawRect(posX, size, Color.FromArgb(180, Color.Black));
+            NativeFunctions.DrawRect(posX, size, Color.FromArgb(180, Color.FromArgb(0,0,0)));
             NativeFunctions.DrawSprite("commonmenu", "shop_arrows_upanddown", posX, new SizeF(58, 58));
             currentY += MenuScrollAreaHeight + 0.5f;
 
@@ -501,7 +503,7 @@ namespace GTAMenu
             _lastDrawableItemCount = drawCount;
 
             if (!overridenCursor && !_mouseOnScreenEdge)
-                Function.Call(Hash._0x8DB8CFFD58B62552, (int)CursorSprite.Normal); // SET_CURSOR_SPRITE
+                Function.Call(Hash._SET_CURSOR_SPRITE, (int)CursorSprite.Normal); // SET_CURSOR_SPRITE
             currentY += GetMenuItemOffsetHeight(drawCount);
         }
 
@@ -595,7 +597,7 @@ namespace GTAMenu
 
         private static void HideHud()
         {
-            UI.HideHudComponentThisFrame(HudComponent.HelpText);
+            Screen.Hud.HideComponentThisFrame(HudComponent.HelpText);
         }
 
         private bool DrawDescription(float currentY, bool displayCount, int selectedIndex, int itemCount)
@@ -608,7 +610,7 @@ namespace GTAMenu
 
             // Background.
             NativeFunctions.DrawRect(new PointF(size.Width / 2 + OffsetX, size.Height / 2 + currentY), size,
-                Color.Black);
+                Color.FromArgb(0,0,0));
 
             // Description text.
             NativeFunctions.DrawText(Description,
@@ -650,20 +652,20 @@ namespace GTAMenu
                 new PointF(size.Width / 2 + OffsetX, size.Height / 2 + OffsetY), size);
 
             // TODO: Banner Text.
-            NativeFunctions.DrawText(Title, new PointF(size.Width / 2 + OffsetX, size.Height / 2 / 2), 1f, Color.White,
+            NativeFunctions.DrawText(Title, new PointF(size.Width / 2 + OffsetX, size.Height / 2 / 2), 1f, Color.FromArgb(255, 255, 255),
                 0, Font.HouseScript, false, false);
 
             height = size.Height;
             return true;
         }
 
-        private static void RequestTextureDict(string dict)
+        private static async void RequestTextureDict(string dict)
         {
             if (NativeFunctions.HasTextureDictionaryLoaded(dict)) return;
             NativeFunctions.RequestTextureDictionary(dict);
             var dateTime = DateTime.Now.AddSeconds(0.5f);
             while (!NativeFunctions.HasTextureDictionaryLoaded(dict) && DateTime.Now < dateTime)
-                Script.Yield();
+                await BaseScript.Delay(0);
         }
 
         private static string GetTextureDictForBannerType(MenuBannerType bannerType, out string sprite)
@@ -782,13 +784,14 @@ namespace GTAMenu
                     sprite = string.Empty;
                     return sprite;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(bannerType), bannerType, null);
+                    sprite = string.Empty;
+                    return sprite;
             }
         }
 
         internal static Color HighlightColor()
         {
-            return Color.FromArgb(50, Color.White);
+            return Color.FromArgb(50, Color.FromArgb(255,255,255));
         }
 
         protected virtual void OnIndexChanged(NativeMenuIndexChangedEventArgs e)
@@ -848,7 +851,8 @@ namespace GTAMenu
                 case FrontEndAudio.FrontendDefault:
                     return "HUD_FRONTEND_DEFAULT_SOUNDSET";
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(audio), audio, null);
+                    return "HUD_FRONTEND_DEFAULT_SOUNDSET";
+                    //throw new ArgumentOutOfRangeException(nameof(audio), audio, null);
             }
         }
 

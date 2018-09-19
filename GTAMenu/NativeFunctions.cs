@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Drawing;
-using GTA;
-using GTA.Native;
-using Font = GTA.Font;
+using CitizenFX.Core;
+using CitizenFX.Core.Native;
+using CitizenFX.Core.UI;
 
 namespace GTAMenu
 {
@@ -13,11 +13,11 @@ namespace GTAMenu
         public static float MeasureStringWidth(string text, string label, Font font, float scale)
         {
             var res = NativeFunctions.GetScreenResolution(out _);
-            Function.Call(Hash._0x54CE8AC98E120CAB, label); // _BEGIN_TEXT_COMMAND_WIDTH
-            Function.Call(Hash._0x6C188BE134E074AA, text); // ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME
+            Function.Call(Hash._BEGIN_TEXT_COMMAND_WIDTH, label); // _BEGIN_TEXT_COMMAND_WIDTH
+            Function.Call(Hash.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME, text); // ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME
             Function.Call(Hash.SET_TEXT_FONT, (int)font);
             Function.Call(Hash.SET_TEXT_SCALE, scale, scale);
-            return Function.Call<float>(Hash._0x85F061DA64ED2F67, 1) * res.Width; // _END_TEXT_COMMAND_GET_WIDTH
+            return Function.Call<float>(Hash._END_TEXT_COMMAND_GET_WIDTH, 1) * res.Width; // _END_TEXT_COMMAND_GET_WIDTH
         }
 
         public static bool HasTextureDictionaryLoaded(string dictionary)
@@ -74,12 +74,12 @@ namespace GTAMenu
 
         public static void DrawSprite(string dictionary, string texture, PointF position, SizeF size, float heading)
         {
-            DrawSprite(dictionary, texture, position, size, heading, Color.White);
+            DrawSprite(dictionary, texture, position, size, heading, Color.FromArgb(255,255,255));
         }
 
         public static void DrawSprite(string dictionary, string texture, PointF position, SizeF size)
         {
-            DrawSprite(dictionary, texture, position, size, 0, Color.White);
+            DrawSprite(dictionary, texture, position, size, 0, Color.FromArgb(255, 255, 255));
         }
 
         public static Size GetScreenResolution(out float aspectRatio)
@@ -93,7 +93,7 @@ namespace GTAMenu
 
         private static float GetAspectRatio()
         {
-            return Function.Call<float>(Hash._0xF1307EF624A80D87, 1); // _GET_ASPECT_RATIO
+            return Function.Call<float>(Hash._GET_ASPECT_RATIO, 1); // _GET_ASPECT_RATIO
         }
 
         public static void DrawRect(PointF position, SizeF size, Color color)
@@ -129,9 +129,9 @@ namespace GTAMenu
                     break;
             }
             Function.Call(Hash.SET_TEXT_JUSTIFICATION, justify);
-            Function.Call(Hash._0x25FBB336DF1804CB, "jamyfafi"); // BEGIN_TEXT_COMMAND_DISPLAY_TEXT
-            Function.Call(Hash._0x6C188BE134E074AA, text); // ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME
-            Function.Call(Hash._0xCD015E5BB0D96A57, position.X / resolution.Width + offset,
+            Function.Call(Hash.BEGIN_TEXT_COMMAND_DISPLAY_TEXT, "jamyfafi"); // BEGIN_TEXT_COMMAND_DISPLAY_TEXT
+            Function.Call(Hash.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME, text); // ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME
+            Function.Call(Hash.END_TEXT_COMMAND_DISPLAY_TEXT, position.X / resolution.Width + offset,
                 position.Y / resolution.Height + offset); // END_TEXT_COMMAND_DISPLAY_TEXT
         }
 
@@ -146,7 +146,7 @@ namespace GTAMenu
             Function.Call(Hash._PUSH_SCALEFORM_MOVIE_FUNCTION, scaleFormHandle, "SET_TEXT");
             Function.Call(Hash._BEGIN_TEXT_COMPONENT, "CELL_EMAIL_BCON");
             AddLongString(text);
-            Function.Call(Hash._0xAE4E8157D9ECF087);
+            Function.Call(Hash._END_TEXT_COMMAND_SCALEFORM_STRING_2);
             Function.Call(Hash._POP_SCALEFORM_MOVIE_FUNCTION_VOID);
 
             Function.Call(Hash._PUSH_SCALEFORM_MOVIE_FUNCTION, scaleFormHandle, "SET_BACKGROUND_IMAGE");
@@ -164,13 +164,13 @@ namespace GTAMenu
             var w = size.Width / resolution.Width + xOffset;
 
             Function.Call(Hash.DRAW_SCALEFORM_MOVIE, scaleFormHandle, x, y + 0.5f, w, 1f, 255, 255, 255, 0);
-            DrawRect(position, new SizeF(size.Width, 2.8f), Color.Black);
+            DrawRect(position, new SizeF(size.Width, 2.8f), Color.FromArgb(0, 0, 0));
         }
 
         private static void AddLongString(string text)
         {
             for (var i = 0; i < text.Length; i += MaxStringLength)
-                Function.Call(Hash._0x6C188BE134E074AA,
+                Function.Call(Hash.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME,
                     text.Substring(i,
                         Math.Min(MaxStringLength, text.Length - i))); // ADD_TEXT COMPONENT_SUBSTRING_PLAYER_NAME
         }
